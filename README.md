@@ -19,4 +19,7 @@ What script includes:
 Updates
   - I started this project 8.10.17 at 9:30 pm UTC+2
   - I added classes generation methods
-  
+
+5.11.17 r.
+  - added mvc stub with basic api implementation
+  - changed local database system to json serialization
