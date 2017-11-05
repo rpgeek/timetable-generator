@@ -7,8 +7,8 @@ class Controller(object):
         self.model = model
         self.view = view
 
-    def add_class(self, classtime, repeatable=False):
-        self.model.add_class(classtime, repeatable)
+    def add_class(self, classtime):
+        self.model.add_class(classtime)
 
     def check_available_rooms(self):
         pass
