@@ -16,3 +16,7 @@ class Classtime(object):
         return dict(day=str(self.date), name=self.name, responsible=self.lead_name,
                         hours_start=self.hrs_st, hours_end=self.hrs_stp,
                         groups=self.groups, room=self.room)
+
+    @property
+    def text(self):
+        return str(self.lead_name + " " + self.room)

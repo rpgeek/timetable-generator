@@ -1,5 +1,5 @@
 import os
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 from .model import Model
 from .model import Classtime
 
@@ -12,7 +12,7 @@ class LocalStorage(Model):
         try:
             self.__db = TinyDB(name)
             self.__connected = True
-            self.days_tbl = self.__db.table('days')
+            self.days_tbl = self.__db.table("days")
         except Exception as e:
             print("error in connection", e)
             self.__connected = False

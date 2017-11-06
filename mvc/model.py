@@ -10,5 +10,3 @@ class Model(object):
 
     def get_all_classes(self):
         raise NotImplementedError()
-
-
