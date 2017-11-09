@@ -5,30 +5,36 @@ This module presents tests for timesheet generation
 import datetime
 import openpyxl
 from models.classtime import Classtime
+from mvc.model import Model
 from openpyxl.styles import Alignment
+from .view import View
 
-
-class ExcelWriter(object):
+class ExcelWriter(View):
     def __init__(self, date_start, day_max, groups, groups_division):
-        self.workbook = openpyxl.Workbook()
-        self.worksheet = self.workbook.active
-        self.header = 'Timetable'
+        super().__init__()
+        self.__workbook = openpyxl.Workbook()
+        self.__worksheet = self.__workbook.active
+        self.__header = 'Timetable'
 
-        self.date_start = date_start
+        self.__date_start = date_start
         self.day_end = day_max
 
         # raw_urs = 17
-        self.hours_margin = 23
-        self.groups = groups
-        self.groups_division = groups_division
+        self.__hours_margin = 23
+        self.__groups = groups
+        self.__groups_division = groups_division
 
-        row_width = len(groups) * 5
+        __row_width = len(groups) * 5
 
-        self.worksheet["A1"] = self.header
-        self.__align(self.worksheet["A1"])
-        self.worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=row_width)
+        self.__worksheet["A1"] = self.__header
+        self.__align(self.__worksheet["A1"])
+        self.__worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=__row_width)
 
         self.__generate_calendar_raw()
+
+    def update(self, file_out):
+
+        self.__save(file_out)
 
     def __write_day(self, rst, rstp, colst, colstp, weekday_str):
         """
@@ -42,10 +48,9 @@ class ExcelWriter(object):
         :param weekday_str: string to print
         """
         print('cells for date columns, rows ', colst, colstp, rst, rstp)
-        cell = self.worksheet.cell(column=colst, row=rst, value=weekday_str)
+        cell = self.__worksheet.cell(column=colst, row=rst, value=weekday_str)
         self.__align(cell)
-
-        self.worksheet.merge_cells(start_row=rst, start_column=colst, end_row=rstp, end_column=colstp)
+        self.__worksheet.merge_cells(start_row=rst, start_column=colst, end_row=rstp, end_column=colstp)
 
     def __align(self, cell):
         """
@@ -63,14 +68,14 @@ class ExcelWriter(object):
         """
         print('cells for date columns, rows ', col_start, row_start)
 
-        for ind, group in enumerate(self.groups_division):
+        for ind, group in enumerate(self.__groups_division):
             print('ind, group', ind, group)
-            cell = self.worksheet.cell(column=col_start, row=row_start, value=ind + 1)
+            cell = self.__worksheet.cell(column=col_start, row=row_start, value=ind + 1)
 
-            self.worksheet.merge_cells(start_row=row_start,
-                                       start_column=col_start,
-                                       end_row=row_start,
-                                       end_column=col_start + group - 1)
+            self.__worksheet.merge_cells(start_row=row_start,
+                                         start_column=col_start,
+                                         end_row=row_start,
+                                         end_column=col_start + group - 1)
 
             col_start += group
             self.__align(cell)
@@ -84,11 +89,11 @@ class ExcelWriter(object):
         """
         print('cells for date columns, rows ', col_start, row_start)
         col_start -= 1
-        for ind, group in enumerate(self.groups):
+        for ind, group in enumerate(self.__groups):
             print('ind, gr', ind, group)
 
             col_start += 1
-            cell = self.worksheet.cell(column=col_start, row=row_start, value=group)
+            cell = self.__worksheet.cell(column=col_start, row=row_start, value=group)
             self.__align(cell)
 
     def __write_hours(self, row_start, col_start):
@@ -114,7 +119,7 @@ class ExcelWriter(object):
             print(hours)
             my_time += increment
             row_start += 1
-            cell = self.worksheet.cell(column=col_start, row=row_start, value=hours)
+            cell = self.__worksheet.cell(column=col_start, row=row_start, value=hours)
             self.__align(cell)
 
     def __add_cls_for_grp(self, rw_start, cl_start, grps_lst, start_hour, stop_hour, data):
@@ -131,16 +136,16 @@ class ExcelWriter(object):
         col_end = cl_start
         for ind, val in enumerate(grps_lst):
 
-            amount = self.groups_division[ind]
+            amount = self.__groups_division[ind]
             print('amount ', amount)
             col_end += amount
 
             if val:
-                self.worksheet.cell(column=cl_start, row=rw_start, value=data)
-                self.worksheet.merge_cells(start_row=rw_start + start_hour - 1,
-                                           start_column=cl_start,
-                                           end_row=rw_start + stop_hour - 1,
-                                           end_column=col_end - 1)
+                self.__worksheet.cell(column=cl_start, row=rw_start, value=data)
+                self.__worksheet.merge_cells(start_row=rw_start + start_hour - 1,
+                                             start_column=cl_start,
+                                             end_row=rw_start + stop_hour - 1,
+                                             end_column=col_end - 1)
             else:
                 cl_start = col_end
 
@@ -159,7 +164,7 @@ class ExcelWriter(object):
         :param repeated: Boolean -> if we want to repead
         :param repeat_factor: how many times repeat
         """
-        date_delta = (day - self.date_start).days
+        date_delta = (day - self.__date_start).days
         if repeated:
             for _ in range(repeat_factor):
                 day_of_std = date_delta + 1 - (date_delta // 7 * 2)
@@ -168,13 +173,13 @@ class ExcelWriter(object):
                 row = date_delta // 7 + 2
                 print('row', row)
 
-                column = (date_delta % 7) * len(self.groups) + 2
+                column = (date_delta % 7) * len(self.__groups) + 2
                 print('column', column)
 
-                row_start = (row - 2) * self.hours_margin + 2
+                row_start = (row - 2) * self.__hours_margin + 2
                 col_start = column
                 row_start += 4
-                self.__add_cls_for_grp(self.worksheet, row_start, col_start,
+                self.__add_cls_for_grp(self.__worksheet, row_start, col_start,
                                        grp_lst, start_hour, stop_hour, text)
                 date_delta += 7
 
@@ -185,10 +190,10 @@ class ExcelWriter(object):
             row = date_delta // 7 + 2
             print('row', row)
 
-            column = (date_delta % 7) * len(self.groups) + 2
+            column = (date_delta % 7) * len(self.__groups) + 2
             print('column', column)
 
-            row_start = (row - 2) * self.hours_margin + 2
+            row_start = (row - 2) * self.__hours_margin + 2
             col_start = column
             row_start += 4
             self.__add_cls_for_grp(row_start, col_start, grp_lst, start_hour, stop_hour, text)
@@ -204,13 +209,13 @@ class ExcelWriter(object):
 
         date = day_of_study
 
-        if self.date_start.weekday() != 0:
-            raise Exception("not monday ", self.date_start.weekday())
+        if self.__date_start.weekday() != 0:
+            raise Exception("not monday ", self.__date_start.weekday())
 
         weekday_str = day_of_study.strftime('%A')
         print('current weekday str ', weekday_str)
 
-        date_delta = (day_of_study - self.date_start).days
+        date_delta = (day_of_study - self.__date_start).days
 
         day_of_std = date_delta + 1 - (date_delta // 7 * 2)
         print('day of study', day_of_std)
@@ -218,13 +223,13 @@ class ExcelWriter(object):
         row = date_delta // 7 + 2
         print('row', row)
 
-        column = (date_delta % 7) * len(self.groups) + 2
+        column = (date_delta % 7) * len(self.__groups) + 2
         print('column', column)
 
-        row_start = (row - 2) * self.hours_margin + 2
-        row_stop = (row - 2) * self.hours_margin + 2
+        row_start = (row - 2) * self.__hours_margin + 2
+        row_stop = (row - 2) * self.__hours_margin + 2
         col_start = column
-        col_stop = column + len(self.groups) - 1
+        col_stop = column + len(self.__groups) - 1
 
         self.__write_day(row_start, row_stop, col_start, col_stop, weekday_str)
         row_start += 1
@@ -238,17 +243,17 @@ class ExcelWriter(object):
         col_start -= 1
         self.__write_hours(row_start, col_start)
 
-    def save(self, param):
-        self.workbook.save(param)
+    def __save(self, param):
+        self.__workbook.save(param)
 
     def __generate_calendar_raw(self):
 
-        end = (self.day_end - self.date_start).days
+        end = (self.day_end - self.__date_start).days
         print(end)
         j = 0
         while 7 * j < end:
             for i in range(7):
-                day_of_study = self.date_start + datetime.timedelta(days=7 * j + i)
+                day_of_study = self.__date_start + datetime.timedelta(days=7 * j + i)
                 print('dostudy', day_of_study)
                 self.__generate_calendar_per_day(day_of_study)
 
@@ -267,4 +272,4 @@ def test_excel():
 
     cls = Classtime('Biologia', today, 1, 4, [1, 0, 0, 1], 'Mr X', '103E')
     exwr.add_classtime(cls)
-    exwr.save("test1.xlsx")
+    exwr.__save("test1.xlsx")

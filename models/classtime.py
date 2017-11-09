@@ -19,4 +19,4 @@ class Classtime(object):
 
     @property
     def text(self):
-        return str(self.lead_name + " " + self.room)
+        return "{} {} {}".format(self.name, self.lead_name, self.room)
