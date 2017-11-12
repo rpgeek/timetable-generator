@@ -13,6 +13,7 @@ class LocalStorage(Model):
             self.__db = TinyDB(name)
             self.__connected = True
             self.days_tbl = self.__db.table("days")
+            self.params_tbl = self.__db.table("params")
         except Exception as e:
             print("error in connection", e)
             self.__connected = False
@@ -31,6 +32,17 @@ class LocalStorage(Model):
 
     def remove_class(self, ids):
         self.days_tbl.remove(doc_ids=ids)
+
+    def set_params(self, params):
+        if len(self.params_tbl.all()) == 0:
+            self.params_tbl.insert(params)
+        else:
+            print("db has params, set_params")
+
+    def get_params(self):
+        params = self.params_tbl.all()
+        return params[0]
+
 
 
 

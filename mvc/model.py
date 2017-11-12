@@ -10,3 +10,9 @@ class Model(object):
 
     def get_all_classes(self):
         raise NotImplementedError()
+
+    def set_params(self, params):
+        raise NotImplementedError()
+
+    def get_params(self):
+        raise NotImplementedError()

@@ -9,3 +9,9 @@ class View(object):
     def update(self, params):
         raise NotImplementedError()
 
+    def update_params(self, params):
+        raise NotImplementedError()
+
+    def update_classes(self, classes):
+        raise NotImplementedError()
+
